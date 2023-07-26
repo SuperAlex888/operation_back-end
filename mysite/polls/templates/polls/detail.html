@@ -1,19 +1,12 @@
-<!---
-模板系统统一使用点符号来访问变量的属性。
-查找顺序：
-    1.首先 Django 尝试对 question 对象使用字典查找（也就是使用 obj.get(str) 操作）
-    2.尝试属性查找（也就是 obj.str 操作）
-    3.尝试列表查找（也就是 obj[int] 操作）
---->
-<h1>{{ question.question_text }}</h1>
-<h1>{{ question.question_text }}</h1>
-<ul>
-    <!---
-        模板中 for循环使用：
-    --->
-{% for choice in question.choice_set.all %}
-    <li>{{ choice.choice_text }}</li>
-
-{% endfor %}
-</ul>
-
+<form action="{% url 'polls:vote' question.id %}" method="post">
+{% csrf_token %}
+<fieldset>
+    <legend><h1>{{ question.question_text }}</h1></legend>
+    {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+    {% for choice in question.choice_set.all %}
+        <input type="radio" name="choice" id="choice{{ forloop.counter }}" value="{{ choice.id }}">
+        <label for="choice{{ forloop.counter }}">{{ choice.choice_text }}</label><br>
+    {% endfor %}
+</fieldset>
+<input type="submit" value="Vote">
+</form>

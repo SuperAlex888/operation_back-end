@@ -1,25 +1,40 @@
 from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
+from django.views import generic
 
 from .models import Question, Choice
 
 
-def index(request):
-    latest_question_list = Question.objects.order_by("-pub_date")[:5]
-    context = {"latest_question_list": latest_question_list}
-    return render(request, "polls/index.html", context)
+class IndexView(generic.ListView):
+    '''
+    在这个类中，定义了三个属性和一个方法： 三个属性中没有定义 model = Question，
+        1.template_name：指定要使用的模板文件的名称。在这种情况下，它是"polls/index.html"。
+        2.context_object_name：指定要在模板中使用的上下文变量的名称。在这种情况下，它是"latest_question_list"。
+        3.get_queryset：定义了一个方法，用于获取要显示的对象列表。在这种情况下，它返回最近发布的五个问题，按发布日期降序排列。
+
+    当用户访问与此视图关联的URL时，Django将调用此视图并执行以下操作：
+        1.调用get_queryset方法获取要显示的对象列表。
+        2.使用指定的模板文件（“polls/index.html”）渲染页面。
+        3.将对象列表传递给模板文件，并使用指定的上下文变量名称（“latest_question_list”）。
+
+    '''
+    template_name = "polls/index.html"
+    context_object_name = "latest_question_list"
+
+    def get_queryset(self):
+        """返回最近发布的五个问题"""
+        return Question.objects.order_by("-pub_date")[:5]
 
 
-def detail(request, question_id):
-    question = get_object_or_404(Question, pk=question_id)
-    return render(request, "polls/detail.html", {"question": question})
+class DetailView(generic.DetailView):
+    model = Question
+    template_name = "polls/detail.html"
 
 
-def results(request, question_id):
-    question = get_object_or_404(Question, pk=question_id)
-    return render(request, "polls/results.html", {"question": question})
-
+class ResultsView(generic.DetailView):
+    model = Question
+    template_name = "polls/results.html"
 
 def vote(request, question_id):
     # 1.使用get_object_or_404再Question数据库中查找是否存在主键为：question_id值得字段，案例中是1

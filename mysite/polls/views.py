@@ -2,7 +2,7 @@ from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from django.views import generic
-
+from django.utils import timezone
 from .models import Question, Choice
 
 
@@ -23,18 +23,31 @@ class IndexView(generic.ListView):
     context_object_name = "latest_question_list"
 
     def get_queryset(self):
-        """返回最近发布的五个问题"""
-        return Question.objects.order_by("-pub_date")[:5]
+        """
+        这段代码是一个名为 get_queryset 的方法，它返回最近发布的五个问题（不包括将来发布的问题）。
+        它通过调用 Question 对象的 filter 方法来筛选出发布日期早于或等于当前时间的问题，然后按照发布日期降序排列，最后取前五个。
+        这个方法通常用于 Django 框架中的视图类中，用来控制显示在页面上的数据。
+        """
+        return Question.objects.filter(pub_date__lte=timezone.now()).order_by("-pub_date")[
+               :5
+               ]
 
 
 class DetailView(generic.DetailView):
     model = Question
     template_name = "polls/detail.html"
 
+    def get_queryset(self):
+        """
+        如果URL未发布则禁止访问.
+        """
+        return Question.objects.filter(pub_date__lte=timezone.now())
 
 class ResultsView(generic.DetailView):
     model = Question
     template_name = "polls/results.html"
+
+
 
 def vote(request, question_id):
     # 1.使用get_object_or_404再Question数据库中查找是否存在主键为：question_id值得字段，案例中是1

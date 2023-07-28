@@ -1,8 +1,10 @@
-import datetime
+import unittest
 
+class TestExample(unittest.TestCase):
+    def test_lists_equal(self):
+        list1 = [1, 2, 3]
+        list2 = [1, 2]
+        self.assertListEqual(list1, list2)
 
-a = 1 <= 2 <= 1
-print(a)
-
-a = '2023-07-27 02:21:27.117507+00:00' <=  '2023-08-26 02:21:27.117507+00:00' <=  '2023-07-27 02:21:27.117507+00:00'
-print(a)
+if __name__ == '__main__':
+    unittest.main()
